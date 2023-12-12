@@ -26,7 +26,7 @@ jobs:
       - name: Run Script Analyzer
         shell: pwsh
         run: |
-          $script = Join-Path $runner.workspace ".github/workflows/script_analysis.ps1"
+          $script = Join-Path $env:RUNNER_WORKSPACE ".github/workflows/script_analysis.ps1"
           $analysisResult = pwsh -ExecutionPolicy Bypass -File $script
 
           # Generate warnings for annotations
@@ -38,7 +38,7 @@ jobs:
           }
 
           # Upload report as artifact
-          $reportPath = Join-Path $runner.workspace "script_analysis_report.txt"
+          $reportPath = Join-Path $env:RUNNER_WORKSPACE "script_analysis_report.txt"
           $analysisResult | ConvertTo-Json | Out-File $reportPath -Force
           Upload-Artifact -Path $reportPath -Name script_analysis_report.txt
 
