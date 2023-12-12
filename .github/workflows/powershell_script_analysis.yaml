@@ -40,11 +40,17 @@ jobs:
           # Upload report as artifact
           $reportPath = Join-Path $env:RUNNER_WORKSPACE "script_analysis_report.txt"
           $analysisResult | ConvertTo-Json | Out-File $reportPath -Force
-          Upload-Artifact -Path $reportPath -Name script_analysis_report.txt
+          # Upload-Artifact -Path $reportPath -Name script_analysis_report.txt
 
           # Annotate commit with warnings (optional severity filter)
           if ($warnings) {
             Write-Host "::warning:: Please review script quality issues:"
             Write-Host $warnings
-            echo $warnings >> "${GITHUB_EVENT_PATH}/${{ runner.os }}"
+            echo $warnings >> "${GITHUB_EVENT_PATH}/${env:RUNNER_OS}"
           }
+      
+      - name: Upload Script Analysis Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: script_analysis_report.txt
+          path: "${env:RUNNER_WORKSPACE}/script_analysis_report.txt"
