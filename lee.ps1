@@ -1,1 +1,2 @@
-asdasdasdasd
+$l = "asfdsafdad"
+write-host "asdasdasdasd"
