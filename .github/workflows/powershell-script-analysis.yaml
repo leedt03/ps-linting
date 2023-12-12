@@ -15,6 +15,14 @@ jobs:
         run: |
           Install-Module PSScriptAnalyzer
 
+    
+      - name: Get environment variables
+        shell: pwsh
+        run: |
+          gci env:
+          write-output "$GITHUB_CONTEXT"
+
+
       - name: Run Script Analyzer
         shell: pwsh
         run: |
