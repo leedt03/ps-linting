@@ -19,7 +19,7 @@ jobs:
       - name: Analyze PowerShell Files and Modules
         shell: pwsh
         run: |
-          $scriptFiles = Get-ChildItem -Path . -Filter "*.ps1", "*.psm1" -Recurse -File
+          $scriptFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse -File
           $moduleFiles = Get-ChildItem -Path modules -Filter "*.ps1m1" -Recurse -File
           $allFiles = $scriptFiles + $moduleFiles
 
