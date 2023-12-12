@@ -23,21 +23,36 @@ jobs:
           $moduleFiles = Get-ChildItem -Path modules -Filter "*.ps1m1" -Recurse -File
           $allFiles = $scriptFiles + $moduleFiles
 
-          $analysisResults = foreach ($file in $allFiles) {
-            Invoke-ScriptAnalyzer -Path $file -ErrorAction Stop
+          # $analysisResults = foreach ($file in $allFiles) {
+          #   Invoke-ScriptAnalyzer -Path $file -ErrorAction Stop
+          # }
+
+          foreach ($file in $allFiles) {
+            $analysisResult = Invoke-ScriptAnalyzer -Path $file
+          
+            # Print file name and violation count
+            Write-Host "Analyzing file: $($file.FullName)"
+            Write-Host "Violations found: $($analysisResult.Diagnostics.Count)"
+          
+            # Optionally print individual violations
+            if ($analysisResult.Diagnostics.Count -gt 0) {
+              foreach ($violation in $analysisResult.Diagnostics) {
+                Write-Host "  - Rule: $($violation.Rule.Name) - Message: $($violation.Message)"
+              }
+            }
           }
 
-      - name: Generate Report
-        shell: pwsh
-        run: |
-          $report = $analysisResults | Where-Object { $_.Diagnostics.Count -gt 0 } | Select-Object File, Rule, Message, Severity
-          $report | ConvertTo-Html -Title "Script Analysis Report" | Out-File "report.html"
+      # - name: Generate Report
+      #   shell: pwsh
+      #   run: |
+      #     $report = $analysisResults | Where-Object { $_.Diagnostics.Count -gt 0 } | Select-Object File, Rule, Message, Severity
+      #     $report | ConvertTo-Html -Title "Script Analysis Report" | Out-File "report.html"
 
-      - name: Upload Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: script_analysis_report.html
-          path: report.html
+      # - name: Upload Report
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: script_analysis_report.html
+      #     path: report.html
 
       - name: Annotate Commit (Optional)
         shell: pwsh
