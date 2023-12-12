@@ -14,7 +14,7 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module PSScriptAnalyzer -Required
+          Install-Module PSScriptAnalyzer
 
       - name: Analyze PowerShell Files and Modules
         shell: pwsh
