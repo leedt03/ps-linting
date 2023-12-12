@@ -13,7 +13,6 @@ jobs:
       - name: Install PSScriptAnalyzer
         shell: pwsh
         run: |
-          Import-Module Pester -Required
           Install-Module PSScriptAnalyzer
 
       - name: Run Script Analyzer
