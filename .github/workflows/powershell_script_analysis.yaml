@@ -31,7 +31,7 @@ jobs:
         shell: pwsh
         run: |
           $report = $analysisResults | Where-Object { $_.Diagnostics.Count -gt 0 } | Select-Object File, Rule, Message, Severity
-          $report | ConvertTo-Html -Path "report.html" -Title "Script Analysis Report"
+          $report | ConvertTo-Html -Title "Script Analysis Report" | Out-File "report.html"
 
       - name: Upload Report
         uses: actions/upload-artifact@v3
