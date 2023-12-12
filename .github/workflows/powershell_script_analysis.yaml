@@ -13,48 +13,38 @@ jobs:
       - name: Install PSScriptAnalyzer
         shell: pwsh
         run: |
-          Install-Module PSScriptAnalyzer
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Required
 
-    
-      - name: Get environment variables
+      - name: Analyze PowerShell Files and Modules
         shell: pwsh
         run: |
-          gci env:
-          write-output "$GITHUB_CONTEXT"
+          $scriptFiles = Get-ChildItem -Path . -Filter "*.ps1", "*.psm1" -Recurse -File
+          $moduleFiles = Get-ChildItem -Path modules -Filter "*.ps1m1" -Recurse -File
+          $allFiles = $scriptFiles + $moduleFiles
 
-      - name: List directory contents
-        shell: pwsh
-        run: |
-          gci -Recurse -File | Select FullName
-
-      - name: Run Script Analyzer
-        shell: pwsh
-        run: |
-          $script = Join-Path $env:RUNNER_WORKSPACE ".github/workflows/script_analysis.ps1"
-          $analysisResult = pwsh -ExecutionPolicy Bypass -File $script
-
-          # Generate warnings for annotations
-          $warnings = ""
-          foreach ($violation in $analysisResult.Diagnostics) {
-            if ($violation.Severity -ge "Warning") {
-              $warnings += "- $($violation.File) ($($violation.Rule.Name)): $($violation.Message)"
-            }
+          $analysisResults = foreach ($file in $allFiles) {
+            Invoke-ScriptAnalyzer -Path $file -ErrorAction Stop
           }
 
-          # Upload report as artifact
-          $reportPath = Join-Path $env:RUNNER_WORKSPACE "script_analysis_report.txt"
-          $analysisResult | ConvertTo-Json | Out-File $reportPath -Force
-          # Upload-Artifact -Path $reportPath -Name script_analysis_report.txt
+      - name: Generate Report
+        shell: pwsh
+        run: |
+          $report = $analysisResults | Where-Object { $_.Diagnostics.Count -gt 0 } | Select-Object File, Rule, Message, Severity
+          $report | Export-Html -Path "report.html" -Title "Script Analysis Report"
 
-          # Annotate commit with warnings (optional severity filter)
+      - name: Upload Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: script_analysis_report.html
+          path: report.html
+
+      - name: Annotate Commit (Optional)
+        shell: pwsh
+        run: |
+          $warnings = $analysisResults | Where-Object { $_.Diagnostics.Count -gt 0 } | Select-Object File, Rule, Message, Severity | Format-List
           if ($warnings) {
             Write-Host "::warning:: Please review script quality issues:"
             Write-Host $warnings
             echo $warnings >> "${GITHUB_EVENT_PATH}/${env:RUNNER_OS}"
           }
-      
-      - name: Upload Script Analysis Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: script_analysis_report.txt
-          path: "${env:RUNNER_WORKSPACE}/script_analysis_report.txt"
