@@ -19,7 +19,7 @@ jobs:
       - name: Analyze PowerShell Files and Modules
         shell: pwsh
         run: |
-          $scriptPath = "$env:GITHUB_WORKSPACE/script.ps1"
+          $scriptPath = "$env:GITHUB_WORKSPACE/.github/scripts/script.ps1"
           pwsh -ExecutionPolicy Bypass -File $scriptPath
 
       - name: Annotate Commit (Optional)
