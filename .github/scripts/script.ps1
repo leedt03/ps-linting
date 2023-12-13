@@ -4,10 +4,10 @@ foreach ($file in $files){
     $results = Invoke-ScriptAnalyzer -Path $file.FullName
 
     foreach ($result in $results){
-        Write-Output "Analysing file: $($result.ScriptName)"
-        Write-Output "Rule Name: $($result.RuleName)"
-        Write-Output "Message: $($result.Message)"
-        Write-Output "Severity: $($result.Severity)"
-        Write-Output "------"
+        Write-Host "Analysing file: $($result.ScriptName)"
+        Write-Host "Rule Name: $($result.RuleName)"
+        Write-Host "Message: $($result.Message)"
+        Write-Host "Severity: $($result.Severity)" -ForegroundColor Red -BackgroundColor Black
+        Write-Host "------"
     }
 }
